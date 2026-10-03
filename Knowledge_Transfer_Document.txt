@@ -1,0 +1,304 @@
+================================================================================
+RISKSENSE AI: AGENTIC BANKING FRAUD RISK SCREENING & INVESTIGATION PLATFORM
+KNOWLEDGE TRANSFER & PRODUCT ENGINEERING SPECIFICATION
+================================================================================
+
+Target Audience: Core Engineers, ML Practitioners, Product Designers, and Technical Leads
+Version: 4.0.0
+Date: October 2026
+Core Architecture: React 19 (Vite) + Python FastAPI + PyTorch Tabular Autoencoder + Multi-Agent Copilot
+
+
+================================================================================
+1. PRODUCT VISION & CORE PHILOSOPHY
+================================================================================
+
+1.1 Product Identity Shift
+Previous Concept: "A machine learning system that predicts whether a loan is fraudulent."
+Current Product Vision: "RiskSense AI is an AI-assisted banking fraud investigation platform that detects suspicious applications, connects related entities across syndicates, transparently explains the evidence, guides analysts through investigation, and continuously learns from human feedback."
+
+1.2 The Real-World Banking Problem
+In real banking operations, a standalone ML probability score (e.g., "0.82 Risk") is insufficient for credit underwriters and Fraud Investigation Units (FIUs). Analysts cannot decline a loan or freeze accounts based on an unexplained black-box output without regulatory breach. 
+
+RiskSense AI is built around the Analyst Workstation paradigm:
+1. Explainability over Obscurity: Every score is broken down into quantified contributing factors (+/- points) and plain-English investigative rationale.
+2. Contextual Evidence Chains: Device fingerprints, PAN linkages, IP velocity, and employer overlap are mapped as investigative evidence, not just abstract graph nodes.
+3. Grounded Regulatory Copilot: Guidance is directly cited against internal Standard Operating Procedures (SOPs) and banking compliance rules.
+4. Human-in-the-Loop Feedback: Analyst decisions (True Fraud, False Positive, Policy Breach) feed into a structured telemetry loop that measures model drift and powers continuous retraining.
+
+
+================================================================================
+2. THE ANALYST WORKSTATION: CORE PRODUCT ARCHITECTURE
+================================================================================
+
+The centerpiece of the platform is the Case Investigation Dossier, designed to minimize analyst clicks and maximize investigative speed.
+
+```text
+                        FRAUD CASE #RS-10482
++-----------------------------------------------------------------------------+
+| Risk Score: 87/100     CRITICAL TIER     Deep Anomaly: FLAGGED (Recon MSE)  |
+| Supervised P(Fraud): 0.82                 Supervised Confidence: 91.4%      |
++-----------------------------------------------------------------------------+
+| WHY FLAGGED? (Key Suspicion Drivers)                                        |
+|                                                                             |
+| [CRITICAL] Shared hardware device linked to 7 active loan applications      |
+| [CRITICAL] High Debt-to-Income (DTI = 71.0%) exceeding 50% policy cap       |
+| [HIGH]     Sub-prime credit score (CIBIL = 612) with active overdue EMIs    |
+| [HIGH]     Declared income (Rs 85k/mo) inconsistent with junior employment  |
+| [MEDIUM]   Burst velocity: 4 applications from same IP subnet within 24 hrs |
++-----------------------------------------------------------------------------+
+| EVIDENCE TABS                                                               |
+| [Application Data] [Identity/PAN] [Device Profile] [Syndicate Graph] [Audit]|
++-----------------------------------------------------------------------------+
+| INTERACTIVE AI COPILOT INVESTIGATION                                        |
+| Q: "Why was this case flagged?"                                             |
+| A: Grounded synthesis with citations to [SOP Sec 4.2: Velocity Fraud]       |
+| Actions: [Run What-If Simulator] [Find Similar Past Cases] [Draft SAR]      |
++-----------------------------------------------------------------------------+
+| ANALYST DECISION & ACTIONS                                                  |
+| [APPROVE LOAN]   [REFER TO SENIOR FIU]   [REJECT & REPORT SAR]              |
+| Decision Rationale / Notes: [                                             ] |
+| Feedback Tag: ( ) True Fraud   ( ) False Positive   ( ) Credit/Policy Fail  |
++-----------------------------------------------------------------------------+
+```
+
+
+================================================================================
+3. SYSTEM ARCHITECTURE & INTERACTION FLOW
+================================================================================
+
+```text
+                     React 19 Frontend Client (Vite)
+                     [Analyst Workstation / Portals]
+                                   │
+                                   ▼
+                    FastAPI Gateway (Port 8000)
+             [CORS, Pydantic Schema Validation, Router]
+                                   │
+      ┌────────────────────────────┼────────────────────────────┐
+      ▼                            ▼                            ▼
+Case Management            Multi-Agent Core             ML & DL Engine
+- SQLite / SQLAlchemy      - Detection Agent            - Random Forest (SMOTE)
+- Application Dossiers     - Analytics Agent            - PyTorch Autoencoder
+- Evidence Verification    - Advisory Agent             - StandardScaler / OHE
+- Case Notes & Audits      - Grounded Copilot           - Anomaly Thresholding
+      │                            │                            │
+      └────────────────────────────┼────────────────────────────┘
+                                   ▼
+                       Analyst Feedback & Telemetry
+            [Records True Fraud / False Positive Ground Truth]
+                                   │
+                                   ▼
+                   Continuous Model Performance & Drift
+               [AUC, Precision, Recall, Retraining Pipeline]
+```
+
+
+================================================================================
+4. KEY FUNCTIONAL MODULES & EXPLAINABILITY ENGINE
+================================================================================
+
+4.1 Quantified Score Attribution (Explainability Engine)
+Rather than displaying a static number, every composite score (0-100) is rendered as a waterfall of contributing factors:
+
+```text
+Composite Risk Score: 87 / 100
+
+CONTRIBUTING FACTORS BREAKDOWN:
++----------------------------------------------------------------+
+| +22 pts | Shared device fingerprint linked to 7 applicants     |
+| +18 pts | High Debt-to-Income ratio (DTI: 71.0%)               |
+| +15 pts | Sub-prime CIBIL score (612) with active debt burden  |
+| +12 pts | Application burst velocity (4 apps / 24 hrs)         |
+| +10 pts | Declared income inconsistent with employer tier      |
+| -05 pts | Residential stability (Owned property > 5 years)     |
+| -03 pts | Age bracket maturity (38 years old)                  |
++----------------------------------------------------------------+
+Baseline Score: 18 -> Final Calibrated Risk: 87
+```
+
+4.2 Investigative (Non-Decorative) Fraud Syndicate Network
+The Network Graph is designed for interactive forensic exploration:
+- Multi-Hop Traversal: Explores relationships between Applications -> Customers -> Device Fingerprints -> Residential Addresses -> Employer Tax IDs.
+- Relational Evidence Badges: Clicking an edge between entities explains *why* the connection is suspicious:
+  * "Same Device ID (DEV-WIN-8921) shared across 3 different PAN numbers in 48 hours."
+  * "Identical residential address provided with differing applicant phone numbers."
+  * "17-minute interval between loan submissions from identical IP subnet."
+- Actionable Graph Controls: Direct "Blacklist Device" or "Freeze Cluster" actions from the graph view.
+
+4.3 Grounded Copilot with SOP Citations (RAG Architecture)
+The Copilot operates over structured case dossiers and indexed banking Standard Operating Procedures (SOPs):
+- Prompt Grounding: Context includes borrower profile, detected anomalies, device linkages, and retrieved SOP sections.
+- Verified Citations: Output format mandates source tags (e.g., `[SOP §4.2: Velocity Anomaly Protocol]`, `[RBI Master Direction §14: Digital Lending KYC]`).
+- Structured Investigation Recommendations: Produces prioritized next steps (e.g., "1. Request Form 16 / ITR verification", "2. Trigger physical field inspection").
+
+4.4 "What-If" Counterfactual Risk Simulator
+Allows underwriters to simulate changes to borrower profile attributes and instantly observe impact on the risk manifold:
+- Example: An analyst adjusts CIBIL from 612 -> 720 and DTI from 71% -> 38%.
+- Simulator Output: Risk Score decreases from 87 -> 52; identifies that while credit risk is resolved, device network risk (+22 pts) remains an active fraud signal.
+
+4.5 Continuous Analyst Feedback Loop & Model Evolution
+- Closed-Loop Recording: Whenever an analyst executes a decision (Approve / Reject / Refer), they tag the ground truth outcome:
+  * True Positive (Confirmed Fraud Ring / Fake Documents)
+  * False Positive (Legitimate borrower with unusual profile)
+  * Credit/Policy Decline (Not fraudulent, but creditworthiness insufficient)
+- Continuous Metrics Dashboard:
+  * Classifier AUC, Recall, Precision tracked against human decisions.
+  * Autoencoder reconstruction error distribution shifts tracked over time.
+  * Retraining Dataset Generation: Validated decisions are packaged into new labeled datasets for quarterly model updates.
+
+4.6 Comprehensive Immutable Audit Trail
+Banking compliance requires complete forensic accountability:
+- Timestamped audit log captures every event:
+  * `[10:31:02] Case ingested via Batch API`
+  * `[10:31:05] ML Inference completed: Classifier P=0.82, Autoencoder MSE=0.042 (Anomaly: YES)`
+  * `[10:33:14] Analyst [R. Sharma] opened case dossier`
+  * `[10:35:20] Device network cluster inspected (3 connected nodes)`
+  * `[10:37:45] Grounded Copilot queried: 'Explain income discrepancy'`
+  * `[10:41:10] Evidence verified: Form 26AS uploaded & tagged 'Inconsistent'`
+  * `[10:43:00] Case escalated to Senior FIU with rationale`
+
+
+================================================================================
+5. REPOSITORY CODEBASE STRUCTURE
+================================================================================
+
+```text
+├── artifacts/                           # Serialized models & inference preprocessors
+│   ├── autoencoder.pt                   # PyTorch weights for deep autoencoder
+│   ├── autoencoder_metadata.pkl         # Anomaly threshold & latent dimension specs
+│   ├── loan_fraud_classifier.pkl        # Random Forest classifier
+│   ├── model_summary.json               # Model metrics, ROC-AUC, threshold benchmarks
+│   └── preprocessor.pkl                 # Fitted ColumnTransformer (28 dimensions)
+├── backend/                             # FastAPI Backend Service
+│   ├── app/
+│   │   ├── agents/                      # Multi-agent orchestrator & copilot
+│   │   │   ├── advisory_agent.py        # Decision policies & next-step actions
+│   │   │   ├── analytics_agent.py       # Heuristics & quantified risk attribution
+│   │   │   ├── copilot_agent.py         # Grounded SOP conversational agent
+│   │   │   ├── detection_agent.py       # Hybrid ML/DL inference coordinator
+│   │   │   └── orchestrator.py          # Central workflow controller
+│   │   ├── data/
+│   │   │   └── sops/                    # Banking SOP reference documents
+│   │   ├── db/
+│   │   │   ├── database.py              # SQLite / SQLAlchemy connection
+│   │   │   ├── models.py                # Applications, Evidence, Notes, Audits, Feedback
+│   │   │   └── seed.py                  # Realistic loan applications & syndicate seed data
+│   │   ├── ml/
+│   │   │   ├── engine.py                # MLEngine artifact loader & inference
+│   │   │   └── models.py                # PyTorch TabularAutoencoder definition
+│   │   └── main.py                      # REST endpoints & API router
+│   ├── requirements.txt                 # Backend dependencies
+│   └── tests/
+│       └── test_api.py                  # Integration test suite
+├── frontend/                            # React 19 + Vite Frontend SPA
+│   ├── src/
+│   │   ├── components/                  # UI Components (Dossier, Graph, Copilot, Header)
+│   │   ├── pages/                       # Portal views (BankPortal, Feedback, Batch, SOPs)
+│   │   ├── services/
+│   │   │   └── api.js                   # Axios HTTP client configuration
+│   │   ├── App.jsx                      # Main SPA layout & router
+│   │   └── main.jsx                     # Vite DOM entrypoint
+│   └── package.json                     # Frontend npm dependencies
+├── loan_applications_v2.csv             # 50k application dataset
+├── train_models.py                      # End-to-end training pipeline
+└── README.md                            # Setup & execution instructions
+```
+
+
+================================================================================
+6. STRATEGIC 4-PHASE DEVELOPMENT ROADMAP
+================================================================================
+
+--------------------------------------------------------------------------------
+PHASE 1: THE ANALYST INVESTIGATION WORKSTATION (Immediate Priority)
+--------------------------------------------------------------------------------
+Objective: Perfect the core investigative workflow, evidence display, and decisioning.
+
+1. Unified Investigation Dossier:
+   - Upgrade the dossier layout with high-impact "Why Flagged?" cards.
+   - Embed quantified +/- score breakdown attributing risk points to specific features.
+   - Add structured evidence tabs: Application Profile, Device Fingerprint, Network Clues, Audit History.
+
+2. Interactive Fraud Network Graph:
+   - Make nodes clickable to show connected applications, device profiles, and common employers.
+   - Render edge badges explaining exact linkage reasons (shared hardware hash, identical IP subnet, 17-minute submission gap).
+   - Add inline "Add to Watchlist" or "Flag Syndicate" action buttons.
+
+3. Complete Human-in-the-Loop Decision & Audit Logging:
+   - Provide explicit decision modal: Approve / Reject / Escalate with required reason codes.
+   - Record analyst name, timestamp, rationale, and feedback tag into the persistent audit trail.
+
+
+--------------------------------------------------------------------------------
+PHASE 2: INTELLIGENT COPILOT, COUNTERFACTUALS & FEEDBACK LOOP
+--------------------------------------------------------------------------------
+Objective: Make the AI assistant deeply valuable during live investigations.
+
+1. RAG Copilot with SOP Citations:
+   - Connect the copilot to index local banking SOPs (KYC compliance, velocity checks, synthetic identity).
+   - Ensure every AI recommendation explicitly cites corresponding SOP sections.
+
+2. "What-If" Counterfactual Risk Simulator:
+   - Build an interactive simulation drawer where analysts can tweak applicant parameters (CIBIL, DTI, Income, Tenor) to see how model scores and anomaly flags respond in real time.
+
+3. Similar-Case Retrieval:
+   - Calculate Euclidean / Cosine similarity in the autoencoder latent space (8-dim bottleneck) to retrieve and display the 3 most similar past investigated cases.
+
+4. Analyst Feedback Telemetry & Retraining Dataset Generation:
+   - Build a feedback analytics dashboard showing True Fraud vs. False Positive rates.
+   - Add automated export of validated ground-truth cases into retraining CSV queues.
+
+
+--------------------------------------------------------------------------------
+PHASE 3: PRODUCTION MLOPS, GOVERNANCE & PERSISTENCE
+--------------------------------------------------------------------------------
+Objective: Ensure enterprise robustness, security, and model monitoring.
+
+1. Model Governance & Drift Monitoring Dashboard:
+   - Track Population Stability Index (PSI) and feature distribution drift.
+   - Display autoencoder reconstruction error percentile health and false positive ratios.
+
+2. Database Migration:
+   - Support PostgreSQL persistence with connection pooling for multi-user analyst concurrency.
+
+3. Role-Based Access Control (RBAC) & Authentication:
+   - Implement JWT authentication with role tiers: Fraud Analyst, Senior Underwriter, Compliance Auditor, Admin.
+
+
+--------------------------------------------------------------------------------
+PHASE 4: ADVANCED RESEARCH & GRAPH INTELLIGENCE
+--------------------------------------------------------------------------------
+Objective: Next-generation deep learning research for complex fraud rings.
+
+1. Graph Neural Networks (GNN):
+   - Implement Relational Graph Convolutional Networks (R-GCN) via PyTorch Geometric to propagate fraud contamination scores across shared device/address graphs.
+
+2. Variational Tabular Autoencoders (VAE) & TabNet:
+   - Explore probabilistic latent spaces to generate reconstruction uncertainty bounds.
+
+3. Real-Time Streaming Ingestion:
+   - Kafka / RabbitMQ consumer integration for sub-50ms transaction stream scoring.
+
+
+================================================================================
+7. STEP-BY-STEP DEVELOPER ONBOARDING GUIDE
+================================================================================
+
+1. Environment Setup:
+   - Clone the repo.
+   - Backend: `cd backend && python -m venv venv && .\venv\Scripts\activate && pip install -r requirements.txt`
+   - Frontend: `cd frontend && npm install`
+
+2. Running Locally:
+   - Backend API: `uvicorn app.main:app --reload --port 8000` (from `backend/`)
+   - Frontend Dev: `npm run dev` (from `frontend/`, opens `http://localhost:5173`)
+   - Interactive API Docs: `http://localhost:8000/docs`
+
+3. Verifying Code Changes:
+   - Run backend test suite: `cd backend && pytest tests/ -v`
+   - Run frontend linter: `cd frontend && npm run lint`
+
+================================================================================
+END OF KNOWLEDGE TRANSFER DOCUMENT
+================================================================================

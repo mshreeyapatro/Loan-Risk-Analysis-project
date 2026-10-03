@@ -1,0 +1,16 @@
+{
+  "feature_dimension": 33,
+  "train_samples": 35000,
+  "val_samples": 7500,
+  "test_samples": 7500,
+  "random_forest": {
+    "roc_auc": 0.747530843900185,
+    "pr_auc": 0.192627943514972
+  },
+  "autoencoder": {
+    "anomaly_threshold": 0.12878775596618652,
+    "mean_error": 0.10422416776418686,
+    "roc_auc": 0.5372112683856296,
+    "epochs": 30
+  }
+}
